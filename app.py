@@ -88,7 +88,8 @@ def predict_sleep_stage(request: SleepWindowRequest):
 
     x = np.array(request.samples, dtype=np.float32)
 
-    expected_shape = (3000, 9)
+    # derive from the loaded checkpoint so this stays in sync with the model (8 or 9 ch)
+    expected_shape = (config["window_size"], len(config["feature_columns"]))
 
     if x.shape != expected_shape:
         raise HTTPException(
@@ -99,10 +100,9 @@ def predict_sleep_stage(request: SleepWindowRequest):
     x = np.nan_to_num(x, nan=0.0, posinf=0.0, neginf=0.0)
 
     # same preprocessing as training
-    # feature order:
-    # F4-M1, C4-M1, ACC_X, ACC_Y, ACC_Z, TEMP, EDA, HR, IBI
-    x[:, 0] *= 1e6
-    x[:, 1] *= 1e6
+    # feature order (8 ch, EDA dropped): F4-M1, C4-M1, ACC_X, ACC_Y, ACC_Z, TEMP, HR, IBI
+    x[:, 0] *= 1e6   # F4-M1 -> uV
+    x[:, 1] *= 1e6   # C4-M1 -> uV
 
     x = scaler.transform(x)
 
