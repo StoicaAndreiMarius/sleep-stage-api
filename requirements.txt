@@ -1,6 +1,8 @@
+# torch is installed separately as a CPU-only build (no bundled CUDA libraries):
+# see the Dockerfile and the README "Run locally" section. It is intentionally not
+# listed here so it can only come from the PyTorch CPU index, never PyPI's CUDA build.
 fastapi
 uvicorn[standard]
-torch
 numpy
 scikit-learn
 pydantic
